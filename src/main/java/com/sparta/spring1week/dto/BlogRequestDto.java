@@ -11,8 +11,8 @@ public class BlogRequestDto {
     private String username;
     private String contents;
     private long password;
-    private LocalDateTime CreatedAt;
-    private LocalDateTime ModifiedAt;
+   // private LocalDateTime CreatedAt;
+   // private LocalDateTime ModifiedAt;
 
 
 }

@@ -26,4 +26,11 @@ public class Blog extends Timestamped{
         this.password = requestDto.getPassword();
 
     }
+
+    public void update(BlogRequestDto requestDto){
+        this.title = requestDto.getTitle();
+        this.username = requestDto.getUsername();
+        this.contents = requestDto.getContents();
+
+    }
 }

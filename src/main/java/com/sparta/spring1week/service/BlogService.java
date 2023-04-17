@@ -16,23 +16,32 @@ import java.util.stream.Collectors;
 public class BlogService {
     private final BlogRepository blogRepository;
 
-    @Transactional
+
     public Blog createList(BlogRequestDto requestDto) {
         Blog blog = new Blog(requestDto);
         blogRepository.save(blog);
         return blog;
     }
 
-    @Transactional
+
     public List<Blog> getlist(){
 
         return blogRepository.findAllByOrderByModifiedAtDesc();
     }
 
 
+
     public BlogResponseDto getidlist(Long id) {
         Blog blog = checkblog(id);
 
+        return new BlogResponseDto(blog);
+    }
+
+
+    @Transactional
+    public BlogResponseDto updateBlog(Long id, BlogRequestDto requestDto) {
+        Blog blog = checkblog(id);
+        blog.update(requestDto);
         return new BlogResponseDto(blog);
     }
 
