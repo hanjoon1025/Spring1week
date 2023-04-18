@@ -64,6 +64,7 @@ public class BlogService {
     public BlogDeleteDto deleteBlog(Long id, BlogRequestDto requestDto) {
         Blog blog = checkblog(id);
         BlogDeleteDto blogDeleteDto = new BlogDeleteDto();
+        //입력한 body의 패스워드와 해당id값의 패스워드 비교
         if(requestDto.getPassword() == blog.getPassword()){
             blogRepository.deleteById(id);
             blogDeleteDto.setSuccess(true);
