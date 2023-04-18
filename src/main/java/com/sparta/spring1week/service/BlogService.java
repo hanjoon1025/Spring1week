@@ -1,5 +1,6 @@
 package com.sparta.spring1week.service;
 
+import com.sparta.spring1week.dto.BlogDeleteDto;
 import com.sparta.spring1week.dto.BlogRequestDto;
 import com.sparta.spring1week.dto.BlogResponseDto;
 import com.sparta.spring1week.entity.Blog;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,16 +19,23 @@ public class BlogService {
     private final BlogRepository blogRepository;
 
 
-    public Blog createList(BlogRequestDto requestDto) {
+    //BlogRensponseDto를 사용하여 password빼고 추출
+    public BlogResponseDto createList(BlogRequestDto requestDto) {
         Blog blog = new Blog(requestDto);
         blogRepository.save(blog);
-        return blog;
+        return new BlogResponseDto(blog);
     }
 
 
-    public List<Blog> getlist(){
-
-        return blogRepository.findAllByOrderByModifiedAtDesc();
+    public List<BlogResponseDto> getlist(){
+        List<Blog> bloglist = blogRepository.findAllByOrderByModifiedAtDesc();
+        List<BlogResponseDto> blogResponseDto = new ArrayList<>();
+        //내림차순된 정보를 가지고와서 responsedto에 넣어줌
+        for (Blog blog : bloglist){
+            BlogResponseDto a = new BlogResponseDto(blog);
+            blogResponseDto.add(a);
+        }
+        return blogResponseDto;
     }
 
 
@@ -50,4 +59,22 @@ public class BlogService {
                 () -> new NullPointerException("선택한 메모가 존재하지 않습니다.")
         );
     }
+
+    @Transactional
+    public BlogDeleteDto deleteBlog(Long id, BlogRequestDto requestDto) {
+        Blog blog = checkblog(id);
+        BlogDeleteDto blogDeleteDto = new BlogDeleteDto();
+        if(requestDto.getPassword() == blog.getPassword()){
+            blogRepository.deleteById(id);
+            blogDeleteDto.setSuccess(true);
+        }
+        else{
+            blogDeleteDto.setSuccess(false);
+        }
+
+
+        return blogDeleteDto;
+
+    }
+
 }

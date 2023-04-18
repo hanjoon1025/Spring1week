@@ -26,4 +26,6 @@ public class BlogResponseDto {
         this.contents = blog.getContents();
 
     }
+
+    //public static class
 }
