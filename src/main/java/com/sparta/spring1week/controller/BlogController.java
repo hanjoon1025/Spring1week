@@ -3,24 +3,23 @@ package com.sparta.spring1week.controller;
 import com.sparta.spring1week.dto.BlogDeleteDto;
 import com.sparta.spring1week.dto.BlogRequestDto;
 import com.sparta.spring1week.dto.BlogResponseDto;
-import com.sparta.spring1week.entity.Blog;
 import com.sparta.spring1week.service.BlogService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-public class Blogcontroller {
+public class BlogController {
 
     private final BlogService blogService;
 
     @PostMapping("/create")
-    public BlogResponseDto createList(@RequestBody BlogRequestDto requestDto){
+    public BlogResponseDto createList(@RequestBody BlogRequestDto requestDto, HttpServletRequest request){
 
-        return blogService.createList(requestDto);
+        return blogService.createList(requestDto, request);
     }
 
     @GetMapping("/list")

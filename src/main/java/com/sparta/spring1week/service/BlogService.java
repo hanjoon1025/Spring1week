@@ -4,7 +4,12 @@ import com.sparta.spring1week.dto.BlogDeleteDto;
 import com.sparta.spring1week.dto.BlogRequestDto;
 import com.sparta.spring1week.dto.BlogResponseDto;
 import com.sparta.spring1week.entity.Blog;
+import com.sparta.spring1week.entity.User;
+import com.sparta.spring1week.jwt.JwtUtil;
 import com.sparta.spring1week.repository.BlogRepository;
+import com.sparta.spring1week.repository.UserRepository;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,14 +22,39 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BlogService {
     private final BlogRepository blogRepository;
+    private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
 
 
     //BlogRensponseDto를 사용하여 password빼고 추출
-    public BlogResponseDto createList(BlogRequestDto requestDto) {
-        Blog blog = new Blog(requestDto);
-        blogRepository.save(blog);
+    @Transactional
+    public BlogResponseDto createList(BlogRequestDto requestDto, HttpServletRequest request) {
+
+        String token = jwtUtil.resolveToken(request);
+        Claims claims;
+
+        if(token != null){
+            if(jwtUtil.validateToken(token)){
+                claims = jwtUtil.getUserInfoFromToken(token);
+            } else{
+                throw new IllegalArgumentException("Token Error");
+            }
+
+
+        User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
+                () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
+        );
+
+        // username 받아온 값을 추가
+        Blog blog =  blogRepository.saveAndFlush(new Blog(requestDto, user.getUsername()));
+
+
         return new BlogResponseDto(blog);
-    }
+        }else{
+            return null;
+        }
+
+}
 
 
     public List<BlogResponseDto> getlist(){

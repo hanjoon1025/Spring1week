@@ -19,12 +19,11 @@ public class Blog extends Timestamped{
     private String contents;
 
 
-    public Blog(BlogRequestDto requestDto) {
+    public Blog(BlogRequestDto requestDto, String username) {
         this.title = requestDto.getTitle();
-        this.username = requestDto.getUsername();
         this.contents = requestDto.getContents();
-        this.password = requestDto.getPassword();
-
+        //username을 받아오기위해 추가
+        this.username = username;
     }
 
     public void update(BlogRequestDto requestDto){
