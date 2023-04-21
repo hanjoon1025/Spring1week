@@ -128,7 +128,6 @@ public class BlogService {
         BlogDeleteDto blogDeleteDto = new BlogDeleteDto();
         blogDeleteDto.setSuccess(true);
 
-
         return blogDeleteDto;
 
     }
