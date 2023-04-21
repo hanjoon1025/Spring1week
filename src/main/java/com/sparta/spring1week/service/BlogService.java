@@ -44,8 +44,8 @@ public class BlogService {
         User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
                 () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
         );
-
-        // username 받아온 값을 추가
+            System.out.println("유저 값 확인 "+user);
+        // username 받아온 값을 추가 => User 엔티티를 파라미터로 전달
         Blog blog =  blogRepository.saveAndFlush(new Blog(requestDto, user.getUsername()));
 
 
@@ -78,8 +78,23 @@ public class BlogService {
 
 
     @Transactional
-    public BlogResponseDto updateBlog(Long id, BlogRequestDto requestDto) {
+    public BlogResponseDto updateBlog(Long id, BlogRequestDto requestDto, HttpServletRequest request) {
+        String token = jwtUtil.resolveToken(request);
+        Claims claims;
+
+        //토큰 널값 유무 처리
+        if (token != null && jwtUtil.validateToken(token)) {
+            claims = jwtUtil.getUserInfoFromToken(token);
+        } else {
+            throw new IllegalArgumentException("Token Error");
+        }
+        String username = claims.getSubject();
         Blog blog = checkblog(id);
+
+        if (!blog.getUsername().equals(username)) {
+            throw new IllegalArgumentException("게시글 작성자만 수정이 가능합니다.");
+        }
+
         blog.update(requestDto);
         return new BlogResponseDto(blog);
     }
@@ -91,17 +106,27 @@ public class BlogService {
     }
 
     @Transactional
-    public BlogDeleteDto deleteBlog(Long id, BlogRequestDto requestDto) {
+    public BlogDeleteDto deleteBlog(Long id, HttpServletRequest request) {
+        String token = jwtUtil.resolveToken(request);
+        Claims claims;
+
+        if (token != null && jwtUtil.validateToken(token)){
+            claims = jwtUtil.getUserInfoFromToken(token);
+        } else {
+            throw new IllegalArgumentException("Token Error");
+        }
+
+        String username = claims.getSubject();
+
         Blog blog = checkblog(id);
+
+        if(!blog.getUsername().equals(username)){
+            throw new IllegalArgumentException("게시글 작성자만 삭제가 가능합니다.");
+        }
+
+        blogRepository.deleteById(id);
         BlogDeleteDto blogDeleteDto = new BlogDeleteDto();
-        //입력한 body의 패스워드와 해당id값의 패스워드 비교
-        if(requestDto.getPassword() == blog.getPassword()){
-            blogRepository.deleteById(id);
-            blogDeleteDto.setSuccess(true);
-        }
-        else{
-            blogDeleteDto.setSuccess(false);
-        }
+        blogDeleteDto.setSuccess(true);
 
 
         return blogDeleteDto;
